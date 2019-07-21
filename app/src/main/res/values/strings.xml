@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Mach7</string>
+    <string name="are_you_going">Are You Going?</string>
+    <string name="end_date">End Date*</string>
+    <string name="start_date">Start Date*</string>
+    <string name="title">Title*</string>
+    <string name="publish">Publish</string>
+    <string name="new_event">New Event</string>
+    <string name="close">Close</string>
+    <string name="location">Location*</string>
+    <string name="description">Description</string>
+    <string name="photo">Photo</string>
+    <string name="categories">Categories*</string>
+    <string name="host">Host*</string>
+</resources>

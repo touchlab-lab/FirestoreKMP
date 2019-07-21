@@ -1,0 +1,2 @@
+include ':firestore'/*,':app'*/
+enableFeaturePreview('GRADLE_METADATA')
