@@ -10,7 +10,17 @@ import kotlin.native.concurrent.freeze
 
 actual typealias DocumentReference = FIRDocumentReference
 
-actual fun DocumentReference.set_(key: Map<String, Any?>): TaskVoid {
+actual fun DocumentReference.set_(key: Map<String, Any?>): TaskVoid = setInternal(key, null)
+
+actual fun DocumentReference.set_(
+    key: Map<String, Any?>,
+    options: SetOptions
+): TaskVoid = setInternal(key, options)
+
+private fun DocumentReference.setInternal(
+    key: Map<String, Any?>,
+    options: SetOptions?
+): TaskVoid {
     val taskData = TaskVoid()
     val taskRef = StableRef.create(taskData)
 
@@ -25,7 +35,15 @@ actual fun DocumentReference.set_(key: Map<String, Any?>): TaskVoid {
         }
     }
 
-    setData(key as Map<Any?, *>, completion.freeze())
+    if(options == null) {
+        setData(key as Map<Any?, *>, completion.freeze())
+    }else{
+        when(options){
+            is SetOptions.Merge -> setData(documentData = key as Map<Any?, *>, merge = true, completion = completion.freeze())
+            is SetOptions.MergeStrings -> setData(documentData = key as Map<Any?, *>, mergeFields = options.fields, completion = completion.freeze())
+            is SetOptions.MergeFields -> setData(documentData = key as Map<Any?, *>, mergeFields = options.fields, completion = completion.freeze())
+        }
+    }
 
     return taskData
 }

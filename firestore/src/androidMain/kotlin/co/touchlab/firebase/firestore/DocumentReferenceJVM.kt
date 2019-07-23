@@ -58,3 +58,16 @@ actual val DocumentReference.path: String
 
 actual fun DocumentReference.update_(key: Map<String, Any?>): TaskVoid =
     TaskVoid(update(key))
+
+actual fun DocumentReference.set_(
+    key: Map<String, Any?>,
+    options: SetOptions
+): TaskVoid =
+    TaskVoid(set(key, setOptionsToJvmSetOptions(options)))
+
+internal fun setOptionsToJvmSetOptions(so:SetOptions):com.google.firebase.firestore.SetOptions =
+    when(so){
+        is SetOptions.Merge -> com.google.firebase.firestore.SetOptions.merge()
+        is SetOptions.MergeFields -> com.google.firebase.firestore.SetOptions.mergeFieldPaths(so.fields)
+        is SetOptions.MergeStrings -> com.google.firebase.firestore.SetOptions.mergeFields(so.fields)
+    }

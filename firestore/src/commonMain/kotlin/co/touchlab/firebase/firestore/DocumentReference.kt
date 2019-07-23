@@ -15,10 +15,22 @@ expect val DocumentReference.id_: String
 expect val DocumentReference.parent_:CollectionReference
 expect val DocumentReference.path: String
 expect fun DocumentReference.set_(key: Map<String, Any?>): TaskVoid
-//TODO: Sort out merge options
-//expect fun DocumentReference.set_(key: Map<String, Any?>, options:SetOptions): TaskVoid
-//TODO: Add other update forms
+expect fun DocumentReference.set_(key: Map<String, Any?>, options:SetOptions): TaskVoid
+
 expect fun DocumentReference.update_(key: Map<String, Any?>): TaskVoid
+//TODO: This or equivalent
+//expect fun DocumentReference.update(vararg pair: Pair<String, Any?>): TaskVoid
+//expect fun DocumentReference.update(vararg pair: Pair<FieldPath, Any?>): TaskVoid
+
+sealed class SetOptions{
+    object Merge : SetOptions()
+    data class MergeStrings(val fields:List<String>): SetOptions(){
+        constructor(vararg field: String) : this(field.toList())
+    }
+    data class MergeFields(val fields:List<FieldPath>): SetOptions(){
+        constructor(vararg field: FieldPath) : this(field.toList())
+    }
+}
 
 suspend fun DocumentReference.suspendSetData(key: Map<String, Any?>) = awaitCallback<Unit> { callback ->
     set_(key).addListeners(
