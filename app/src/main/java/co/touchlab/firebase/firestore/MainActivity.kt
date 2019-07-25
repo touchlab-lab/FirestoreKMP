@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.FlowCollector
@@ -39,6 +40,21 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope()  {
                 .document().set(mapOf(Pair("name", "Some data ${System.currentTimeMillis()}")))
         }
 
+        findViewById<Button>(R.id.docRefStuff).setOnClickListener {
+            docRefStuff()
+        }
+    }
+
+    private fun docRefStuff() = launch {
+        val documentReference = getFirebaseInstance().collection("testdata")
+            .document()
+        val nameString = "Suspend data ${System.currentTimeMillis()}"
+        documentReference.path
+
+        documentReference.suspendSet(mapOf(Pair("name", nameString)))
+        Toast.makeText(this@MainActivity, ((documentReference.suspendGet() as DocumentSnapshot)["name"] as String), Toast.LENGTH_LONG).show()
+        kotlinx.coroutines.delay(3000)
+        documentReference.suspendDelete()
     }
 
 

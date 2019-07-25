@@ -1,5 +1,5 @@
 package co.touchlab.firebase.firestore
 
-interface ListenerRegistration{
+expect interface ListenerRegistration{
     fun remove()
 }

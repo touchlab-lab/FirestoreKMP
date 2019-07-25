@@ -3,106 +3,40 @@ package co.touchlab.firebase.firestore
 import cocoapods.FirebaseFirestore.FIRDocumentReference
 import cocoapods.FirebaseFirestore.FIRDocumentSnapshot
 import cocoapods.FirebaseFirestore.FIRFirestoreSource
-import cocoapods.FirebaseFirestore.FIRQuerySnapshot
 import kotlinx.cinterop.StableRef
 import platform.Foundation.NSError
 import kotlin.native.concurrent.freeze
 
 actual typealias DocumentReference = FIRDocumentReference
 
-actual fun DocumentReference.set_(key: Map<String, Any?>): TaskVoid = setInternal(key, null)
-
-actual fun DocumentReference.set_(
-    key: Map<String, Any?>,
-    options: SetOptions
-): TaskVoid = setInternal(key, options)
-
-private fun DocumentReference.setInternal(
-    key: Map<String, Any?>,
-    options: SetOptions?
-): TaskVoid {
-    val taskData = TaskVoid()
-    val taskRef = StableRef.create(taskData)
-
-    val completion = { err: NSError? ->
-        val task = taskRef.get()
-        taskRef.dispose()
-
-        if (err == null) {
-            task.success()
-        } else {
-            task.fail(err)
-        }
-    }
-
-    if(options == null) {
-        setData(key as Map<Any?, *>, completion.freeze())
-    }else{
-        when(options){
-            is SetOptions.Merge -> setData(documentData = key as Map<Any?, *>, merge = true, completion = completion.freeze())
-            is SetOptions.MergeStrings -> setData(documentData = key as Map<Any?, *>, mergeFields = options.fields, completion = completion.freeze())
-            is SetOptions.MergeFields -> setData(documentData = key as Map<Any?, *>, mergeFields = options.fields, completion = completion.freeze())
-        }
-    }
-
-    return taskData
-}
-
-actual fun DocumentReference.delete_(): TaskVoid {
-    val taskData = TaskVoid()
-    val taskRef = StableRef.create(taskData)
-
-    deleteDocumentWithCompletion { err:NSError? ->
-        val task = taskRef.get()
-        taskRef.dispose()
-
-        if(err == null)
-        {
-            task.success()
-        }
-        else{
-            task.fail(err)
-        }
-    }
-
-    return taskData
-}
-
-actual fun DocumentReference.get_(): TaskData<DocumentSnapshot> {
-    val taskData = TaskData<DocumentSnapshot>()
-    val taskRef = StableRef.create(taskData)
-
-    val completion = { snapshot: FIRDocumentSnapshot?, err: NSError? ->
-        val task = taskRef.get()
-        taskRef.dispose()
-        if (err == null && snapshot != null) {
-            task.ref = snapshot
-            task.success()
-        } else {
-            task.fail(err!!)
-        }
-    }
-    getDocumentWithCompletion(completion.freeze())
-
-    return taskData
-}
-
-actual val DocumentReference.id_: String
-    get() = documentID
-
-actual fun DocumentReference.addSnapshotListener_(listener: (DocumentSnapshot?, FirebaseFirestoreException?) -> Unit): ListenerRegistration =
-    wrapListenerRegistration(addSnapshotListener {documentSnapshot, firebaseFirestoreException -> listener(documentSnapshot, firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) }) })
-
 actual fun DocumentReference.addSnapshotListener_(
-    metadataChanges: MetadataChanges,
+    metadataChanges: MetadataChanges?,
     listener: (DocumentSnapshot?, FirebaseFirestoreException?) -> Unit
 ): ListenerRegistration =
-    wrapListenerRegistration(addSnapshotListenerWithIncludeMetadataChanges(metadataChanges == MetadataChanges.INCLUDE) {documentSnapshot, firebaseFirestoreException -> listener(documentSnapshot, firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) }) })
+    if (metadataChanges == null) {
+        addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+            listener(
+                documentSnapshot,
+                firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
+        }
+    } else {
+        addSnapshotListenerWithIncludeMetadataChanges(metadataChanges == MetadataChanges.INCLUDE) { documentSnapshot, firebaseFirestoreException ->
+            listener(
+                documentSnapshot,
+                firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
+        }
+    }
 
 actual fun DocumentReference.collection(collectionPath: String): CollectionReference =
     collectionWithPath(collectionPath)
 
-actual fun DocumentReference.get_(source: Source): TaskData<DocumentSnapshot> {
+actual fun DocumentReference.delete_(): TaskVoid {
+    val taskPair = makeVoid()
+    deleteDocumentWithCompletion(taskPair.second)
+    return taskPair.first
+}
+
+actual fun DocumentReference.getDocument(source: Source?): TaskData<DocumentSnapshot> {
     val taskData = TaskData<DocumentSnapshot>()
     val taskRef = StableRef.create(taskData)
 
@@ -116,40 +50,64 @@ actual fun DocumentReference.get_(source: Source): TaskData<DocumentSnapshot> {
             task.fail(err!!)
         }
     }
-    getDocumentWithSource(sourceToDarwinSource(source), completion.freeze())
+
+    if (source == null) {
+        getDocumentWithCompletion(completion.freeze())
+    } else {
+        getDocumentWithSource(sourceToDarwinSource(source), completion.freeze())
+    }
 
     return taskData
 }
 
-internal fun sourceToDarwinSource(source: Source): FIRFirestoreSource = when(source){
-    Source.CACHE -> FIRFirestoreSource.FIRFirestoreSourceCache
-    Source.DEFAULT -> FIRFirestoreSource.FIRFirestoreSourceDefault
-    Source.SERVER -> FIRFirestoreSource.FIRFirestoreSourceServer
-}
-
-actual val DocumentReference.firestore_: FirebaseFirestore
+actual val DocumentReference.firestore: FirebaseFirestore
     get() = firestore
-actual val DocumentReference.parent_: CollectionReference
+actual val DocumentReference.id: String
+    get() = documentID
+actual val DocumentReference.parent: CollectionReference
     get() = parent
 actual val DocumentReference.path: String
     get() = path()
 
-actual fun DocumentReference.update_(key: Map<String, Any?>): TaskVoid {
-    val taskData = TaskVoid()
-    val taskRef = StableRef.create(taskData)
+actual fun DocumentReference.setData(
+    key: Map<String, Any?>,
+    options: SetOptions?
+): TaskVoid {
+    val taskPair = makeVoid()
 
-    val completion = { err: NSError? ->
-        val task = taskRef.get()
-        taskRef.dispose()
-
-        if (err == null) {
-            task.success()
-        } else {
-            task.fail(err)
+    if (options == null) {
+        setData(key as Map<Any?, *>, taskPair.second)
+    } else {
+        when (options) {
+            is SetOptions.Merge -> setData(
+                documentData = key as Map<Any?, *>,
+                merge = true,
+                completion = taskPair.second
+            )
+            is SetOptions.MergeStrings -> setData(
+                documentData = key as Map<Any?, *>,
+                mergeFields = options.fields,
+                completion = taskPair.second
+            )
+            is SetOptions.MergeFields -> setData(
+                documentData = key as Map<Any?, *>,
+                mergeFields = options.fields,
+                completion = taskPair.second
+            )
         }
     }
 
-    updateData(key as Map<Any?, *>, completion.freeze())
+    return taskPair.first
+}
 
-    return taskData
+actual fun DocumentReference.updateData(key: Map<String, Any?>): TaskVoid {
+    val taskPair = makeVoid()
+    updateData(key as Map<Any?, *>, taskPair.second)
+    return taskPair.first
+}
+
+internal fun sourceToDarwinSource(source: Source): FIRFirestoreSource = when (source) {
+    Source.CACHE -> FIRFirestoreSource.FIRFirestoreSourceCache
+    Source.DEFAULT -> FIRFirestoreSource.FIRFirestoreSourceDefault
+    Source.SERVER -> FIRFirestoreSource.FIRFirestoreSourceServer
 }
