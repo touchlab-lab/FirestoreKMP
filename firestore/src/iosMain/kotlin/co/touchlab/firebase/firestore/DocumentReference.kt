@@ -12,20 +12,32 @@ actual typealias DocumentReference = FIRDocumentReference
 actual fun DocumentReference.addSnapshotListener_(
     metadataChanges: MetadataChanges?,
     listener: (DocumentSnapshot?, FirebaseFirestoreException?) -> Unit
-): ListenerRegistration =
-    if (metadataChanges == null) {
-        addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-            listener(
+): ListenerRegistration {
+    val taskRef = StableRef.create(listener)
+
+    val rawReg = if (metadataChanges == null) {
+        val nativeListener: (FIRDocumentSnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
                 documentSnapshot,
                 firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
         }
+        addSnapshotListener(nativeListener.freeze())
     } else {
-        addSnapshotListenerWithIncludeMetadataChanges(metadataChanges == MetadataChanges.INCLUDE) { documentSnapshot, firebaseFirestoreException ->
-            listener(
+        val nativeListener: (FIRDocumentSnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
                 documentSnapshot,
                 firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
         }
+        addSnapshotListenerWithIncludeMetadataChanges(
+            metadataChanges == MetadataChanges.INCLUDE,
+            nativeListener.freeze()
+        )
     }
+
+    return StableRefListenerRegistration(
+        taskRef, rawReg
+    )
+}
 
 actual fun DocumentReference.collection(collectionPath: String): CollectionReference =
     collectionWithPath(collectionPath)

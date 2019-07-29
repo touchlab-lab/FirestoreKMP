@@ -6,8 +6,8 @@ import cocoapods.FirebaseFirestore.FIRServerTimestampBehavior
 
 actual typealias DocumentSnapshot = FIRDocumentSnapshot
 
-actual fun DocumentSnapshot.contains(fieldPath: FieldPath): Boolean = contains(fieldPath)
-actual fun DocumentSnapshot.contains(field: String): Boolean = contains(field)
+actual fun DocumentSnapshot.contains(fieldPath: FieldPath): Boolean = valueForField(fieldPath) != null
+actual fun DocumentSnapshot.contains(field: String): Boolean = valueForField(field) != null
 
 actual val DocumentSnapshot.exists: Boolean
     get() = exists
@@ -60,13 +60,23 @@ actual fun DocumentSnapshot.getDocumentReference(field: String): DocumentReferen
     valueForField(field) as DocumentReference?
 
 actual fun DocumentSnapshot.getDouble(field: String): Double? =
-    valueForField(field) as Double?
+    (valueForField(field) as Number?)?.toDouble()
 
 actual fun DocumentSnapshot.getLong(field: String): Long? =
-    valueForField(field) as Long?
+    (valueForField(field) as Number?)?.toLong()
 
-actual fun DocumentSnapshot.getString(field: String): String? =
-    valueForField(field) as String?
+actual fun DocumentSnapshot.getString(field: String): String? {
+    val value = valueForField(field)
+    return if(value !=null){
+        if(value is String){
+            value
+        }else{
+            value.toString()
+        }
+    }else{
+        null
+    }
+}
 
 actual fun DocumentSnapshot.getTimestamp(
     field: String,

@@ -45,8 +45,8 @@ suspend fun DocumentReference.suspendDelete() = awaitCallback<Unit> { callback -
     )
 }
 
-suspend fun DocumentReference.suspendGet(): DocumentSnapshot = awaitCallback { callback ->
-    getDocument().addListeners(
+suspend fun DocumentReference.suspendGet(source: Source? = null): DocumentSnapshot = awaitCallback { callback ->
+    getDocument(source).addListeners(
         { callback.onComplete(it) },
         { exception -> callback.onError(exception) }
     )

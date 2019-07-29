@@ -45,20 +45,32 @@ actual val Query.firestore: FirebaseFirestore
 actual fun Query.addSnapshotListener_(
     metadataChanges: MetadataChanges?,
     listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit
-): ListenerRegistration =
-    if (metadataChanges == null) {
-        addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            listener(
-                querySnapshot,
+): ListenerRegistration {
+    val taskRef = StableRef.create(listener)
+
+    val rawReg = if (metadataChanges == null) {
+        val nativeListener: (FIRQuerySnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
+                documentSnapshot,
                 firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
         }
+        addSnapshotListener(nativeListener.freeze())
     } else {
-        addSnapshotListenerWithIncludeMetadataChanges(metadataChanges == MetadataChanges.INCLUDE) { querySnapshot, firebaseFirestoreException ->
-            listener(
-                querySnapshot,
+        val nativeListener: (FIRQuerySnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
+                documentSnapshot,
                 firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
         }
+        addSnapshotListenerWithIncludeMetadataChanges(
+            metadataChanges == MetadataChanges.INCLUDE,
+            nativeListener.freeze()
+        )
     }
+
+    return StableRefListenerRegistration(
+        taskRef, rawReg
+    )
+}
 
 actual fun Query.endAt(documentSnapshot: DocumentSnapshot): Query = queryEndingAtDocument(documentSnapshot)
 actual fun Query.endBefore(documentSnapshot: DocumentSnapshot): Query = queryEndingBeforeDocument(documentSnapshot)

@@ -15,5 +15,7 @@
     <Button android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="Add" android:id="@+id/addButton"/>
     <Button android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Doc Ref Stuff" android:id="@+id/docRefStuff"/>
+            android:text="Doc Ref Stuff" android:id="@+id/docRefStuff"
+            android:layout_marginBottom="10dp"
+    />
 </LinearLayout>

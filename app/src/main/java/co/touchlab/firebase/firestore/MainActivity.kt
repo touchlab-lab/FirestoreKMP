@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.FlowCollector
 
-
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope()  {
 
     private val flow = getFirebaseInstance().collection("testdata")
@@ -53,9 +52,27 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope()  {
 
         documentReference.suspendSet(mapOf(Pair("name", nameString)))
         Toast.makeText(this@MainActivity, ((documentReference.suspendGet() as DocumentSnapshot)["name"] as String), Toast.LENGTH_LONG).show()
-        kotlinx.coroutines.delay(3000)
+        delay(3000)
         documentReference.suspendDelete()
+
+        readTests()
     }
 
+    private suspend fun readTests() {
+        val fb = getFirebaseInstance()
+        val trcoll = fb.collection("testreads")
+        assertEquals(trcoll.id, "testreads")
+        val docRef = trcoll.document("s5SKxjMW8qxmqHT6gcJ8")
+        assertEquals(docRef.id, "s5SKxjMW8qxmqHT6gcJ8")
+        val docSnap = docRef.suspendGet()
+        assertEquals(docSnap.getLong("aval"), 123.toLong())
+        assertEquals(docSnap.getDouble("aval"), 123.toDouble())
+        assertEquals(docSnap.getBoolean("abool"), true)
+        Toast.makeText(this@MainActivity, "Snap name ${docSnap.getString("name")}", Toast.LENGTH_LONG).show()
+    }
 
+    private fun assertEquals(a:Any?, b:Any?){
+        if(a != b)
+            throw IllegalStateException("nah $a == $b")
+    }
 }
