@@ -87,14 +87,26 @@ kotlin {
             firebasecore {
                 packageName 'cocoapods.FirebaseCore'
                 defFile = file("$projectDir/src/iosMain/c_interop/FirebaseCore.def")
-                includeDirs ("$projectDir/../iosApp/Pods/FirebaseCore/Firebase/Core/Public")
+                includeDirs ("$projectDir/../firebaseTestIos/Pods/FirebaseCore/Firebase/Core/Public")
                 compilerOpts ("-F$projectDir/src/iosMain/c_interop/modules/FirebaseCore-${versions.firebaseCoreIos}")
             }
             firestore {
                 packageName 'cocoapods.FirebaseFirestore'
                 defFile = file("$projectDir/src/iosMain/c_interop/FirebaseFirestore.def")
-                includeDirs ("$projectDir/../iosApp/Pods/FirebaseFirestore/Firestore/Source/Public", "$projectDir/../iosApp/Pods/FirebaseCore/Firebase/Core/Public")
+                includeDirs ("$projectDir/../firebaseTestIos/Pods/FirebaseFirestore/Firestore/Source/Public", "$projectDir/../firebaseTestIos/Pods/FirebaseCore/Firebase/Core/Public")
                 compilerOpts ("-F$projectDir/src/iosMain/c_interop/modules/FirebaseFirestore-${versions.firebaseFirestoreIos}")
+            }
+            auth {
+                packageName 'cocoapods.FirebaseAuth'
+                defFile = file("$projectDir/src/iosMain/c_interop/FirebaseAuth.def")
+                includeDirs ("$projectDir/../firebaseTestIos/Pods/FirebaseAuth/Firebase/Auth/Source/Public", "$projectDir/../firebaseTestIos/Pods/FirebaseCore/Firebase/Core/Public")
+                compilerOpts ("-F$projectDir/src/iosMain/c_interop/modules/FirebaseAuth-${versions.firebaseAuthIos}")
+            }
+            storage {
+                packageName 'cocoapods.FirebaseStorage'
+                defFile = file("$projectDir/src/iosMain/c_interop/FirebaseStorage.def")
+                includeDirs ("$projectDir/../firebaseTestIos/Pods/FirebaseStorage/Firebase/Storage/Public", "$projectDir/../firebaseTestIos/Pods/FirebaseCore/Firebase/Core/Public")
+                compilerOpts ("-F$projectDir/src/iosMain/c_interop/modules/FirebaseStorage-${versions.firebaseStorageIos}")
             }
         }
     }
@@ -122,6 +134,8 @@ kotlin {
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}"
                 implementation "com.google.firebase:firebase-firestore:${versions.firebaseFirestoreAndroid}"
                 implementation "com.google.firebase:firebase-core:${versions.firebaseCoreAndroid}"
+                implementation "com.google.firebase:firebase-storage:${versions.firebaseStorageAndroid}"
+                implementation "com.google.firebase:firebase-auth:${versions.firebaseAuthAndroid}"
             }
         }
 

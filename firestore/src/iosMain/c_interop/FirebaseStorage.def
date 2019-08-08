@@ -1,0 +1,4 @@
+language = Objective-C
+modules = FirebaseStorage
+compilerOpts = -framework FirebaseStorage
+linkerOpts = -framework FirebaseStorage

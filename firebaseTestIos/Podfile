@@ -6,4 +6,6 @@ target 'firebaseTestIos' do
     pod 'firebase_test', :path => '../firebase-test'
     pod 'FirebaseCore', '~> 6.0.2'
     pod 'FirebaseFirestore','~> 1.3.2'
+    pod 'FirebaseStorage','~> 3.2.1'
+    pod 'FirebaseAuth','~> 6.1.1'
 end

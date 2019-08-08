@@ -15,12 +15,28 @@ import firebase_test
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var ts: TestStructSwift?
+    var tc: TestClassSwift?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         Firestore.initialize()
-        SampleIosKt.kickOffTest()
+//        SampleIosKt.kickOffTest()
+//        TestClassKt.runAlloc()
+        
+        LooperLocal().runAlloc()
+        
+        let start = TestClassKt.tm()
+        let repeats = Int(TestClassKt.repeatCount())
+        for n in 0..<repeats {
+//            let t = TestClassSwift(s: "arst", i: n)
+            tc = TestClassSwift(s: "arst", i: n)
+//            ts = TestStructSwift(s: "arst", i: n)
+        }
+        
+        let total = TestClassKt.tm() - start
+        print("Swift loop: \(total)")
+        
         // Override point for customization after application launch.
         return true
     }
@@ -50,3 +66,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+struct TestStructSwift {
+    let s:String
+    let i:Int
+    
+    init(s:String, i:Int) {
+        self.s = s
+        self.i = i
+    }
+}
+
+class TestClassSwift {
+    let s:String
+    let i:Int
+    
+    init(s:String, i:Int) {
+        self.s = s
+        self.i = i
+    }
+}
