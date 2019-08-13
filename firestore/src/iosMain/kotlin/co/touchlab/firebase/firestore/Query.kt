@@ -20,7 +20,7 @@ actual fun Query.orderBy(
 
 actual fun Query.limit(limit: Long): Query = queryLimitedTo(limit)
 
-actual fun Query.get_(): TaskData<QuerySnapshot> {
+actual fun Query.get_(source: Source?): TaskData<QuerySnapshot> {
     val taskData = TaskData<QuerySnapshot>()
     val taskRef = StableRef.create(taskData)
 
@@ -34,7 +34,11 @@ actual fun Query.get_(): TaskData<QuerySnapshot> {
             task.fail(err!!)
         }
     }
-    getDocumentsWithCompletion(completion.freeze())
+    if(source == null) {
+        getDocumentsWithCompletion(completion.freeze())
+    }else{
+        getDocumentsWithSource(sourceToDarwinSource(source), completion.freeze())
+    }
 
     return taskData
 }
@@ -110,3 +114,4 @@ actual fun Query.whereArrayContains(
     field: FieldPath,
     value: Any
 ): Query = queryWhereFieldPath(path = field, arrayContains = value)
+

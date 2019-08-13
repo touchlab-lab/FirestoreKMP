@@ -22,8 +22,8 @@ actual fun Query.orderBy(
     }
 
 actual fun Query.limit(limit: Long): Query = limit(limit)
-actual fun Query.get_(): TaskData<QuerySnapshot> =
-    TaskData(get())
+actual fun Query.get_(source: Source?): TaskData<QuerySnapshot> =
+    TaskData(if(source != null){get(sourceToJvmSource(source))}else{get()})
 
 actual val Query.firestore: FirebaseFirestore
     get() = firestore

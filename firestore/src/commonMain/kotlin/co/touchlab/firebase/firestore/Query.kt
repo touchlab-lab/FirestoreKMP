@@ -14,7 +14,7 @@ enum class QueryDirection {
 expect val Query.firestore: FirebaseFirestore
 expect fun Query.orderBy(field: String, direction: QueryDirection? = null): Query
 expect fun Query.limit(limit: Long): Query
-expect fun Query.get_(): TaskData<QuerySnapshot>
+expect fun Query.get_(source: Source? = null): TaskData<QuerySnapshot>
 expect fun Query.addSnapshotListener_(
     metadataChanges: MetadataChanges? = null,
     listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit
