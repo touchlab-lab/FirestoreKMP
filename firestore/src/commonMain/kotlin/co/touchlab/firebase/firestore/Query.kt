@@ -23,6 +23,7 @@ expect fun Query.addSnapshotListener_(
 expect fun Query.endAt(documentSnapshot: DocumentSnapshot): Query
 expect fun Query.endBefore(documentSnapshot: DocumentSnapshot): Query
 expect fun Query.startAfter(documentSnapshot: DocumentSnapshot): Query
+//expect fun Query.startAt(vararg fields: Any): Query
 expect fun Query.startAt(documentSnapshot: DocumentSnapshot): Query
 expect fun Query.whereEqualTo(field: String, value: Any): Query
 expect fun Query.whereGreaterThan(field: String, value: Any): Query
