@@ -3,13 +3,12 @@ package co.touchlab.firebase.firestore
 
 actual typealias CollectionReference  = com.google.firebase.firestore.CollectionReference
 
-actual fun CollectionReference.add_(data: Map<String, Any?>): TaskData<DocumentReference> =
+actual fun CollectionReference.addDocument(data: Map<String, Any?>): TaskData<DocumentReference> =
     TaskData(add(data))
 
+actual fun CollectionReference.document(documentPath: String?): DocumentReference =
+    if(documentPath == null){document()}else{document(documentPath)}
 
-
-actual fun CollectionReference.document(documentPath: String): DocumentReference = document(documentPath)
-actual fun CollectionReference.document(): DocumentReference = document()
 actual val CollectionReference.id: String
     get() = getId()
 

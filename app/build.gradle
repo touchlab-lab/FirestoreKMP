@@ -1,17 +1,12 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
-
-apply plugin: 'androidx.navigation.safeargs'
-
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "29.0.0"
+    buildToolsVersion "29.0.1"
     defaultConfig {
-        applicationId "co.touchlab.firebase.firestore.test"
+        applicationId "co.touchlab.firebase.firestore"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
@@ -41,18 +36,16 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.0-RC"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.1.0-alpha06"
-    implementation "androidx.navigation:navigation-ui-ktx:2.1.0-alpha06"
-
     implementation 'com.google.firebase:firebase-firestore:20.1.0'
-    implementation 'com.google.firebase:firebase-core:17.0.0'
+    implementation 'com.google.firebase:firebase-core:17.0.1'
 
-    implementation project(':firebase')
+    implementation project(':firestore')
 }
 
 apply plugin: 'com.google.gms.google-services'

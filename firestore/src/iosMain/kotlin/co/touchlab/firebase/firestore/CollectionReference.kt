@@ -7,7 +7,7 @@ import kotlin.native.concurrent.freeze
 
 actual typealias CollectionReference = FIRCollectionReference
 
-actual fun CollectionReference.add_(data: Map<String, Any?>): TaskData<DocumentReference> {
+actual fun CollectionReference.addDocument(data: Map<String, Any?>): TaskData<DocumentReference> {
     val taskData = TaskData<DocumentReference>()
     val taskRef = StableRef.create(taskData)
 
@@ -25,8 +25,9 @@ actual fun CollectionReference.add_(data: Map<String, Any?>): TaskData<DocumentR
     return taskData
 }
 
-actual fun CollectionReference.document(documentPath: String): DocumentReference = documentWithPath(documentPath)
-actual fun CollectionReference.document(): DocumentReference = documentWithAutoID()
+actual fun CollectionReference.document(documentPath: String?): DocumentReference =
+    if(documentPath == null){documentWithAutoID()}else{documentWithPath(documentPath)}
+
 actual val CollectionReference.parent: DocumentReference?
     get() = parent()
 actual val CollectionReference.id: String

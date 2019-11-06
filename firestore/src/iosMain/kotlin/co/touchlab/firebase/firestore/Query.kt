@@ -10,12 +10,17 @@ actual typealias Query = FIRQuery
 
 actual fun Query.orderBy(
     field: String,
-    direction: QueryDirection
-): Query = queryOrderedByField(field, direction == QueryDirection.DESCENDING)
+    direction: QueryDirection?
+): Query =
+    if (direction == null) {
+        queryOrderedByField(field)
+    } else {
+        queryOrderedByField(field, direction == QueryDirection.DESCENDING)
+    }
 
 actual fun Query.limit(limit: Long): Query = queryLimitedTo(limit)
 
-actual fun Query.get_(): TaskData<QuerySnapshot> {
+actual fun Query.get_(source: Source?): TaskData<QuerySnapshot> {
     val taskData = TaskData<QuerySnapshot>()
     val taskRef = StableRef.create(taskData)
 
@@ -29,26 +34,50 @@ actual fun Query.get_(): TaskData<QuerySnapshot> {
             task.fail(err!!)
         }
     }
-    getDocumentsWithCompletion(completion.freeze())
+    if(source == null) {
+        getDocumentsWithCompletion(completion.freeze())
+    }else{
+        getDocumentsWithSource(sourceToDarwinSource(source), completion.freeze())
+    }
 
     return taskData
 }
-
-actual fun Query.addSnapshotListener_(listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit): ListenerRegistration =
-    wrapListenerRegistration(addSnapshotListener {querySnapshot, firebaseFirestoreException -> listener(querySnapshot, firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) }) })
 
 actual val Query.firestore: FirebaseFirestore
     get() = firestore()
 
 actual fun Query.addSnapshotListener_(
-    metadataChanges: MetadataChanges,
+    metadataChanges: MetadataChanges?,
     listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit
-): ListenerRegistration =
-    wrapListenerRegistration(addSnapshotListenerWithIncludeMetadataChanges(metadataChanges == MetadataChanges.INCLUDE) { querySnapshot, firebaseFirestoreException -> listener(querySnapshot, firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) }) })
+): ListenerRegistration {
+    val taskRef = StableRef.create(listener)
+
+    val rawReg = if (metadataChanges == null) {
+        val nativeListener: (FIRQuerySnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
+                documentSnapshot,
+                firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
+        }
+        addSnapshotListener(nativeListener.freeze())
+    } else {
+        val nativeListener: (FIRQuerySnapshot?, NSError?) -> Unit = { documentSnapshot, firebaseFirestoreException ->
+            taskRef.get()(
+                documentSnapshot,
+                firebaseFirestoreException?.let { FirebaseFirestoreException(DarwinException(it)) })
+        }
+        addSnapshotListenerWithIncludeMetadataChanges(
+            metadataChanges == MetadataChanges.INCLUDE,
+            nativeListener.freeze()
+        )
+    }
+
+    return StableRefListenerRegistration(
+        taskRef, rawReg
+    )
+}
 
 actual fun Query.endAt(documentSnapshot: DocumentSnapshot): Query = queryEndingAtDocument(documentSnapshot)
 actual fun Query.endBefore(documentSnapshot: DocumentSnapshot): Query = queryEndingBeforeDocument(documentSnapshot)
-actual fun Query.orderBy(field: String): Query = queryOrderedByField(field)
 actual fun Query.startAfter(documentSnapshot: DocumentSnapshot): Query = queryStartingAfterDocument(documentSnapshot)
 actual fun Query.startAt(documentSnapshot: DocumentSnapshot): Query = queryStartingAtDocument(documentSnapshot)
 actual fun Query.whereGreaterThanOrEqualTo(
@@ -85,3 +114,4 @@ actual fun Query.whereArrayContains(
     field: FieldPath,
     value: Any
 ): Query = queryWhereFieldPath(path = field, arrayContains = value)
+

@@ -9,7 +9,7 @@ actual class TaskVoid(private val task:Task<Void>) {
     }
 }
 
-actual class TaskData<T:Any>(private val task:Task<T>){
+actual class TaskData<T>(private val task:Task<T>){
     actual fun addListeners(successListener: (T) -> Unit, failureListener: (java.lang.Exception) -> Unit) {
         task.addOnSuccessListener { successListener(it) }
         task.addOnFailureListener { failureListener(it) }

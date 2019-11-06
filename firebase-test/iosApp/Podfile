@@ -1,0 +1,9 @@
+use_frameworks!
+
+platform :ios, '9.0'
+
+target 'iosApp' do
+    pod 'firebase_test', :path => '..'
+    pod 'FirebaseCore', '~> 6.0.2'
+    pod 'FirebaseFirestore','~> 1.3.2'
+end

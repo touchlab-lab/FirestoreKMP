@@ -7,39 +7,53 @@ actual typealias Query = com.google.firebase.firestore.Query
 
 actual fun Query.orderBy(
     field: String,
-    direction: QueryDirection
-): Query = orderBy(field, if(direction == QueryDirection.ASCENDING){com.google.firebase.firestore.Query.Direction.ASCENDING}else{com.google.firebase.firestore.Query.Direction.DESCENDING})
-actual fun Query.orderBy(field: String): Query = orderBy(field)
+    direction: QueryDirection?
+): Query =
+    if (direction == null) {
+        orderBy(field)
+    } else {
+        orderBy(
+            field, if (direction == QueryDirection.ASCENDING) {
+                com.google.firebase.firestore.Query.Direction.ASCENDING
+            } else {
+                com.google.firebase.firestore.Query.Direction.DESCENDING
+            }
+        )
+    }
 
 actual fun Query.limit(limit: Long): Query = limit(limit)
-actual fun Query.get_(): TaskData<QuerySnapshot> =
-    TaskData(get())
-actual fun Query.addSnapshotListener_(listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit): ListenerRegistration =
-    wrapListenerRegistration(addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-        listener(
-            querySnapshot,
-            firebaseFirestoreException?.let { FirebaseFirestoreException(firebaseFirestoreException) })
-    })
+actual fun Query.get_(source: Source?): TaskData<QuerySnapshot> =
+    TaskData(if(source != null){get(sourceToJvmSource(source))}else{get()})
 
 actual val Query.firestore: FirebaseFirestore
     get() = firestore
 
 actual fun Query.addSnapshotListener_(
-    metadataChanges: co.touchlab.firebase.firestore.MetadataChanges,
+    metadataChanges: co.touchlab.firebase.firestore.MetadataChanges?,
     listener: (QuerySnapshot?, FirebaseFirestoreException?) -> Unit
 ): ListenerRegistration =
-    wrapListenerRegistration(
+    if (metadataChanges == null) {
+        addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            listener(
+                querySnapshot,
+                firebaseFirestoreException?.let { FirebaseFirestoreException(firebaseFirestoreException) })
+        }
+    } else {
         addSnapshotListener(
-            if (metadataChanges == co.touchlab.firebase.firestore.MetadataChanges.INCLUDE) {
-                MetadataChanges.INCLUDE
-            } else {
-                MetadataChanges.EXCLUDE
-            }
+            metadataChanges.toJvm()
         ) { querySnapshot, firebaseFirestoreException ->
             listener(
                 querySnapshot,
                 firebaseFirestoreException?.let { FirebaseFirestoreException(firebaseFirestoreException) })
-        })
+        }
+    }
+
+internal fun co.touchlab.firebase.firestore.MetadataChanges.toJvm():MetadataChanges =
+    if (this == co.touchlab.firebase.firestore.MetadataChanges.INCLUDE) {
+        MetadataChanges.INCLUDE
+    } else {
+        MetadataChanges.EXCLUDE
+    }
 
 actual fun Query.endAt(documentSnapshot: DocumentSnapshot): Query = endAt(documentSnapshot)
 actual fun Query.endBefore(documentSnapshot: DocumentSnapshot): Query = endBefore(documentSnapshot)
