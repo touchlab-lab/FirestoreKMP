@@ -7,7 +7,7 @@ actual typealias Timestamp = FIRTimestamp
 actual fun timestampNow(): Timestamp = FIRTimestamp.timestamp()
 
 actual val Timestamp.seconds: Long
-    get() = getSeconds()
+    get() = seconds()
 
 actual val Timestamp.nanoseconds: Int
-    get() = getNanoseconds()
+    get() = nanoseconds()
