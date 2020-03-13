@@ -8,7 +8,7 @@ archive this pretty soon because it'll be a lot of support.
 
 ## Usage
 
-Use Koltin 1.3.50.
+Use Koltin 1.3.70.
 
 Dependency config
 
@@ -21,6 +21,15 @@ sourceSets {
     }
 }
 ```
+
+## UPDATE
+
+To build the project you should the option `-x check` to build gradle command line.
+
+```
+./gradlew build -x check
+```
+
 
 You'll need to config both Android and iOS as you normally would for Firestore, but then you should be able to get the
 Firestore instance like this.

@@ -4,7 +4,7 @@ import firebase_test
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        SampleIosKt.kickOffTest()
+        ConfigTestFirestoreKt.configTestFirestore()
 //        label.text = Proxy().proxyHello()
     }
 
