@@ -22,15 +22,6 @@ sourceSets {
 }
 ```
 
-## UPDATE
-
-To build the project you should the option `-x check` to build gradle command line.
-
-```
-./gradlew build -x check
-```
-
-
 You'll need to config both Android and iOS as you normally would for Firestore, but then you should be able to get the
 Firestore instance like this.
 
@@ -39,6 +30,16 @@ getFirebaseInstance()
 ```
 
 Then you can do Firestore things.
+
+
+## UPDATE
+
+To build the project you should the option `-x check` to build gradle command line.
+
+```
+./gradlew build -x check
+```
+
 
 ## Droidcon
 
