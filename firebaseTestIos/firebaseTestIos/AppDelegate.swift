@@ -18,9 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        FirebaseApp.configure()
-        Firestore.initialize()
-        SampleIosKt.kickOffTest()
+        //FirebaseApp.configure()
+        //Firestore.initialize()
+        ConfigTestFirestoreKt.configTestFirestore()
         // Override point for customization after application launch.
         return true
     }

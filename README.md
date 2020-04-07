@@ -11,7 +11,7 @@ run methods that get delegated to the platform specific SDKs.
 
 ## Usage
 
-Use Koltin 1.3.50.
+Use Koltin 1.3.70.
 
 Dependency config
 
@@ -33,6 +33,16 @@ getFirebaseInstance()
 ```
 
 Then you can do Firestore things.
+
+
+## UPDATE
+
+To build the project you should the option `-x check` to build gradle command line.
+
+```
+./gradlew build -x check
+```
+
 
 ## Droidcon
 
