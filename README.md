@@ -1,10 +1,13 @@
 # Firestore SDK for Kotlin Multiplatform
 
+## Not Supported!
+
+This library was produced for a client project, but open sourced in support of a talk on [Kotlin Multiplatform library development](https://vimeo.com/371460823). We don't plan for ongoing support, unless there is renewed client interest.
+
+## Overview
+
 Library wrapping the Firestore SDK for Kotlin Multiplatform with clients for Android and iOS. Shared common code can
 run methods that get delegated to the platform specific SDKs.
-
-This was originally for a client and now is being used as an example library for a talk on KMP libraries. We'll probably
-archive this pretty soon because it'll be a lot of support.
 
 ## Usage
 
