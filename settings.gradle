@@ -1,2 +1,2 @@
-include ':firestore', ':firebase-test'/*,':app'*/
+include ':firestore'/*, ':firebase-test'*//*,':app'*/
 enableFeaturePreview('GRADLE_METADATA')

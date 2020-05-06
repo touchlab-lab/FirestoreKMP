@@ -87,7 +87,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "co.touchlab:stately:${versions.stately}"
+                implementation "co.touchlab:stately-common:${versions.stately}"
+                implementation "co.touchlab:stately-concurrency:${versions.stately}"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${versions.coroutines}"
             }
         }
